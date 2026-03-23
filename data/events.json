@@ -1,0 +1,76 @@
+[
+  {
+    "id": 100,
+    "recurring": "weekly",
+    "recurDay": 0,
+    "time": "10:00",
+    "color": "#5c6bc0",
+    "title_ru": "Воскресное богослужение",
+    "title_en": "Sunday Worship Service",
+    "desc_ru": "Утреннее богослужение с проповедью и прославлением. Воскресная школа для детей.",
+    "desc_en": "Morning worship service with sermon and praise. Sunday school for children."
+  },
+  {
+    "id": 101,
+    "recurring": "weekly",
+    "recurDay": 5,
+    "time": "19:00",
+    "color": "#7e57c2",
+    "title_ru": "Пятничное богослужение",
+    "title_en": "Friday Evening Service",
+    "desc_ru": "Вечернее богослужение с проповедью и молитвой.",
+    "desc_en": "Evening worship service with sermon and prayer."
+  },
+  {
+    "id": 102,
+    "recurring": "weekly",
+    "recurDay": 3,
+    "time": "19:00",
+    "color": "#26a69a",
+    "title_ru": "Молодёжное собрание",
+    "title_en": "Youth Meeting",
+    "desc_ru": "Изучение Библии, общение и игры для молодёжи и подростков.",
+    "desc_en": "Bible study, fellowship, and games for youth and teens."
+  },
+  {
+    "id": 103,
+    "recurring": "weekly",
+    "recurDay": 2,
+    "time": "19:00",
+    "color": "#ef6c00",
+    "title_ru": "Изучение Библии",
+    "title_en": "Bible Study",
+    "desc_ru": "Среда. Разбор Библии и молитва.",
+    "desc_en": "Wednesday. Bible study and prayer."
+  },
+  {
+    "id": 6,
+    "date": "2026-04-18",
+    "time": "17:00",
+    "color": "#e53935",
+    "title_ru": "Молодёжный вечер — «Вопросы и ответы»",
+    "title_en": "Youth Night — Q&A Evening",
+    "desc_ru": "Открытая дискуссия для молодёжи: вопросы веры, жизни и Библии. Приглашаются все от 14 до 30 лет.",
+    "desc_en": "Open discussion for youth: questions about faith, life, and the Bible. Ages 14-30 welcome."
+  },
+  {
+    "id": 7,
+    "date": "2026-05-02",
+    "time": "10:00",
+    "color": "#e53935",
+    "title_ru": "Весенняя конференция — День 1",
+    "title_en": "Spring Conference — Day 1",
+    "desc_ru": "Ежегодная весенняя конференция с приглашённым проповедником. Тема: «Жизнь по вере».",
+    "desc_en": "Annual spring conference with a guest speaker. Theme: 'Living by Faith.'"
+  },
+  {
+    "id": 8,
+    "date": "2026-05-03",
+    "time": "10:00",
+    "color": "#e53935",
+    "title_ru": "Весенняя конференция — День 2",
+    "title_en": "Spring Conference — Day 2",
+    "desc_ru": "Второй день конференции. Совместный обед после утреннего заседания.",
+    "desc_en": "Second day of the conference. Fellowship lunch after the morning session."
+  }
+]

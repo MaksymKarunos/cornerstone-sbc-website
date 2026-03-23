@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Event Manager — Cornerstone SBC</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #1a1a1a; line-height: 1.6; }
+    .admin-header { background: #1a1a1a; color: #fff; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; }
+    .admin-header h1 { font-size: 1.1rem; font-weight: 600; }
+    .admin-header a { color: #999; font-size: 0.85rem; }
+    .admin-wrap { max-width: 960px; margin: 24px auto; padding: 0 16px; }
+    .admin-tabs { display: flex; gap: 0; margin-bottom: 24px; }
+    .admin-tab { padding: 10px 24px; font-size: 0.9rem; font-weight: 600; cursor: pointer; border: 1px solid #e5e5e5; background: #fff; color: #666; }
+    .admin-tab.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .admin-section { background: #fff; border: 1px solid #e5e5e5; margin-bottom: 24px; }
+    .admin-section h2 { padding: 16px 20px; border-bottom: 1px solid #e5e5e5; font-size: 1rem; font-weight: 600; }
+    .admin-section-body { padding: 20px; }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+    .form-row.triple { grid-template-columns: 1fr 1fr 1fr; }
+    @media (max-width: 600px) { .form-row, .form-row.triple { grid-template-columns: 1fr; } }
+    label { display: block; font-size: 0.8rem; font-weight: 600; color: #666; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+    input, textarea, select { width: 100%; padding: 8px 12px; border: 1px solid #ddd; font-size: 0.95rem; font-family: inherit; }
+    input:focus, textarea:focus, select:focus { outline: none; border-color: #1a1a1a; }
+    textarea { min-height: 60px; resize: vertical; }
+
+    .btn { display: inline-block; padding: 8px 20px; font-size: 0.9rem; font-weight: 600; cursor: pointer; border: none; font-family: inherit; }
+    .btn-add { background: #1a1a1a; color: #fff; }
+    .btn-add:hover { background: #333; }
+    .btn-del { background: none; color: #cc0000; font-size: 0.8rem; padding: 4px 8px; cursor: pointer; border: none; }
+    .btn-del:hover { text-decoration: underline; }
+    .btn-export { background: #f5f5f5; color: #1a1a1a; border: 1px solid #ddd; }
+    .btn-export:hover { background: #e5e5e5; }
+
+    .events-table { width: 100%; border-collapse: collapse; }
+    .events-table th { text-align: left; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: #999; padding: 8px 12px; border-bottom: 2px solid #e5e5e5; }
+    .events-table td { padding: 10px 12px; border-bottom: 1px solid #f0f0f0; font-size: 0.9rem; vertical-align: top; }
+    .events-table tr:hover { background: #fafafa; }
+    .no-events { padding: 40px; text-align: center; color: #999; }
+
+    .badge { display: inline-block; font-size: 0.7rem; padding: 2px 8px; background: #f0f0f0; color: #666; text-transform: uppercase; letter-spacing: 0.3px; }
+    .badge-recurring { background: #e3f2fd; color: #1565c0; }
+
+    .actions { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+    .status { padding: 8px 16px; font-size: 0.85rem; margin-top: 12px; display: none; }
+    .status.ok { display: block; background: #e8f5e9; color: #2e7d32; }
+    .status.err { display: block; background: #fbe9e7; color: #c62828; }
+
+    .help { padding: 16px 20px; background: #fafafa; border-top: 1px solid #e5e5e5; font-size: 0.85rem; color: #666; }
+    .conditional { display: none; }
+    .conditional.show { display: block; }
+  </style>
+</head>
+<body>
+
+<div class="admin-header">
+  <h1>Event Manager</h1>
+  <a href="index.html">Back to site</a>
+</div>
+
+<div class="admin-wrap">
+  <!-- Tabs -->
+  <div class="admin-tabs">
+    <div class="admin-tab active" onclick="switchTab('one-time')">One-Time Events</div>
+    <div class="admin-tab" onclick="switchTab('recurring')">Recurring Events</div>
+    <div class="admin-tab" onclick="switchTab('export')">Export / Save</div>
+  </div>
+
+  <!-- TAB: One-Time Events -->
+  <div class="tab-content active" id="tab-one-time">
+    <div class="admin-section">
+      <h2>Add One-Time Event</h2>
+      <div class="admin-section-body">
+        <div class="form-row triple">
+          <div><label>Date</label><input type="date" id="ev-date"></div>
+          <div><label>Time</label><input type="time" id="ev-time" value="10:00"></div>
+          <div></div>
+        </div>
+        <div class="form-row">
+          <div><label>Title (Russian)</label><input type="text" id="ev-title-ru" placeholder="Весенняя конференция"></div>
+          <div><label>Title (English)</label><input type="text" id="ev-title-en" placeholder="Spring Conference"></div>
+        </div>
+        <div class="form-row">
+          <div><label>Description (Russian)</label><input type="text" id="ev-desc-ru" placeholder="Описание события"></div>
+          <div><label>Description (English)</label><input type="text" id="ev-desc-en" placeholder="Event description"></div>
+        </div>
+        <div class="actions">
+          <button class="btn btn-add" onclick="addOneTime()">Add Event</button>
+        </div>
+        <div id="add-status" class="status"></div>
+      </div>
+    </div>
+
+    <div class="admin-section">
+      <h2>One-Time Events</h2>
+      <div style="overflow-x: auto;">
+        <table class="events-table">
+          <thead><tr><th>Date</th><th>Time</th><th>Title (RU)</th><th>Title (EN)</th><th></th></tr></thead>
+          <tbody id="onetime-body"><tr><td colspan="5" class="no-events">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: Recurring Events -->
+  <div class="tab-content" id="tab-recurring">
+    <div class="admin-section">
+      <h2>Add Recurring Event</h2>
+      <div class="admin-section-body">
+        <div class="form-row triple">
+          <div>
+            <label>Day of Week</label>
+            <select id="rec-day">
+              <option value="0">Sunday</option>
+              <option value="1">Monday</option>
+              <option value="2">Tuesday</option>
+              <option value="3">Wednesday</option>
+              <option value="4">Thursday</option>
+              <option value="5">Friday</option>
+              <option value="6">Saturday</option>
+            </select>
+          </div>
+          <div><label>Time</label><input type="time" id="rec-time" value="10:00"></div>
+          <div></div>
+        </div>
+        <div class="form-row">
+          <div><label>Title (Russian)</label><input type="text" id="rec-title-ru" placeholder="Воскресное богослужение"></div>
+          <div><label>Title (English)</label><input type="text" id="rec-title-en" placeholder="Sunday Worship Service"></div>
+        </div>
+        <div class="form-row">
+          <div><label>Description (Russian)</label><input type="text" id="rec-desc-ru" placeholder="Описание"></div>
+          <div><label>Description (English)</label><input type="text" id="rec-desc-en" placeholder="Description"></div>
+        </div>
+        <div class="actions">
+          <button class="btn btn-add" onclick="addRecurring()">Add Recurring Event</button>
+        </div>
+        <div id="rec-status" class="status"></div>
+      </div>
+    </div>
+
+    <div class="admin-section">
+      <h2>Recurring Events</h2>
+      <div style="overflow-x: auto;">
+        <table class="events-table">
+          <thead><tr><th>Day</th><th>Time</th><th>Title (RU)</th><th>Title (EN)</th><th></th></tr></thead>
+          <tbody id="recurring-body"><tr><td colspan="5" class="no-events">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: Export -->
+  <div class="tab-content" id="tab-export">
+    <div class="admin-section">
+      <h2>Export / Save</h2>
+      <div class="admin-section-body">
+        <p style="margin-bottom: 12px; font-size: 0.9rem; color: #666;">Copy the JSON below and replace the contents of <code>data/events.json</code> on your server.</p>
+        <textarea id="json-output" style="min-height: 200px; font-family: monospace; font-size: 0.8rem;"></textarea>
+        <div class="actions">
+          <button class="btn btn-export" onclick="copyJSON()">Copy to Clipboard</button>
+          <button class="btn btn-export" onclick="downloadJSON()">Download JSON</button>
+          <button class="btn btn-export" onclick="resetToFile()">Reset to File</button>
+        </div>
+        <div id="export-status" class="status"></div>
+      </div>
+      <div class="help">
+        <strong>How it works:</strong><br>
+        Changes save automatically to your browser. All pages on this domain show updated events instantly.<br><br>
+        <strong>For production deployment:</strong><br>
+        1. Click "Download JSON" to get the file<br>
+        2. Upload to <code>/data/events.json</code> on your server (via GoDaddy File Manager or FTP)<br>
+        3. This ensures all visitors see the events
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var STORAGE_KEY = 'cbc_events';
+var DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+var events = [];
+
+function saveToStorage() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(events)); } catch(e) {}
+}
+
+function switchTab(name) {
+  document.querySelectorAll('.admin-tab').forEach(function(t, i) {
+    var tabs = ['one-time','recurring','export'];
+    t.classList.toggle('active', tabs[i] === name);
+  });
+  document.querySelectorAll('.tab-content').forEach(function(c) {
+    c.classList.toggle('active', c.id === 'tab-' + name);
+  });
+}
+
+function loadEvents() {
+  try {
+    var stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      var parsed = JSON.parse(stored);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        events = parsed;
+        renderAll();
+        return;
+      }
+    }
+  } catch(e) {}
+
+  fetch('data/events.json')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      events = data;
+      saveToStorage();
+      renderAll();
+    })
+    .catch(function() { events = []; renderAll(); });
+}
+
+function renderAll() {
+  renderOneTime();
+  renderRecurring();
+  renderJSON();
+}
+
+function renderOneTime() {
+  var tbody = document.getElementById('onetime-body');
+  var oneTime = events.filter(function(e) { return !e.recurring; })
+    .sort(function(a, b) { return a.date.localeCompare(b.date); });
+
+  if (oneTime.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" class="no-events">No one-time events.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = oneTime.map(function(ev) {
+    return '<tr><td>' + ev.date + '</td><td>' + ev.time + '</td><td>' + ev.title_ru + '</td><td>' + ev.title_en + '</td>' +
+      '<td><button class="btn-del" onclick="deleteEvent(' + ev.id + ')">Remove</button></td></tr>';
+  }).join('');
+}
+
+function renderRecurring() {
+  var tbody = document.getElementById('recurring-body');
+  var recurring = events.filter(function(e) { return e.recurring === 'weekly'; });
+
+  if (recurring.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" class="no-events">No recurring events.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = recurring.map(function(ev) {
+    return '<tr><td>' + DAYS[ev.recurDay] + '</td><td>' + ev.time + '</td><td>' + ev.title_ru + '</td><td>' + ev.title_en + '</td>' +
+      '<td><button class="btn-del" onclick="deleteEvent(' + ev.id + ')">Remove</button></td></tr>';
+  }).join('');
+}
+
+function renderJSON() {
+  document.getElementById('json-output').value = JSON.stringify(events, null, 2);
+}
+
+function getMaxId() {
+  return events.reduce(function(m, e) { return Math.max(m, e.id); }, 0);
+}
+
+function addOneTime() {
+  var date = document.getElementById('ev-date').value;
+  var time = document.getElementById('ev-time').value;
+  var tru = document.getElementById('ev-title-ru').value.trim();
+  var ten = document.getElementById('ev-title-en').value.trim();
+  var dru = document.getElementById('ev-desc-ru').value.trim();
+  var den = document.getElementById('ev-desc-en').value.trim();
+
+  if (!date || !tru || !ten) {
+    showStatus('add-status', 'Fill in date and titles in both languages.', 'err');
+    return;
+  }
+  events.push({ id: getMaxId() + 1, date: date, time: time || '10:00', title_ru: tru, title_en: ten, desc_ru: dru || tru, desc_en: den || ten });
+  saveToStorage(); renderAll();
+  showStatus('add-status', 'Event added.', 'ok');
+  document.getElementById('ev-title-ru').value = '';
+  document.getElementById('ev-title-en').value = '';
+  document.getElementById('ev-desc-ru').value = '';
+  document.getElementById('ev-desc-en').value = '';
+}
+
+function addRecurring() {
+  var day = parseInt(document.getElementById('rec-day').value);
+  var time = document.getElementById('rec-time').value;
+  var tru = document.getElementById('rec-title-ru').value.trim();
+  var ten = document.getElementById('rec-title-en').value.trim();
+  var dru = document.getElementById('rec-desc-ru').value.trim();
+  var den = document.getElementById('rec-desc-en').value.trim();
+
+  if (!tru || !ten) {
+    showStatus('rec-status', 'Fill in titles in both languages.', 'err');
+    return;
+  }
+  events.push({ id: getMaxId() + 1, recurring: 'weekly', recurDay: day, time: time || '10:00', title_ru: tru, title_en: ten, desc_ru: dru || tru, desc_en: den || ten });
+  saveToStorage(); renderAll();
+  showStatus('rec-status', 'Recurring event added.', 'ok');
+  document.getElementById('rec-title-ru').value = '';
+  document.getElementById('rec-title-en').value = '';
+  document.getElementById('rec-desc-ru').value = '';
+  document.getElementById('rec-desc-en').value = '';
+}
+
+function deleteEvent(id) {
+  events = events.filter(function(e) { return e.id !== id; });
+  saveToStorage(); renderAll();
+}
+
+function resetToFile() {
+  localStorage.removeItem(STORAGE_KEY);
+  fetch('data/events.json')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      events = data;
+      saveToStorage(); renderAll();
+      showStatus('export-status', 'Reset to original events.json.', 'ok');
+    });
+}
+
+function copyJSON() {
+  var ta = document.getElementById('json-output');
+  ta.select();
+  document.execCommand('copy');
+  showStatus('export-status', 'Copied.', 'ok');
+}
+
+function downloadJSON() {
+  var blob = new Blob([JSON.stringify(events, null, 2)], { type: 'application/json' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = 'events.json'; a.click();
+  URL.revokeObjectURL(url);
+  showStatus('export-status', 'Downloaded. Upload to /data/events.json on your server.', 'ok');
+}
+
+function showStatus(id, msg, type) {
+  var el = document.getElementById(id);
+  el.textContent = msg;
+  el.className = 'status ' + type;
+  setTimeout(function() { el.className = 'status'; }, 5000);
+}
+
+loadEvents();
+</script>
+
+</body>
+</html>
