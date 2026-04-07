@@ -247,17 +247,15 @@ function switchTab(name) {
 }
 
 function loadEvents() {
-  // Try API (only on Node server port)
-  var port = window.location.port;
-  var tryAPI = (port === '4000' || port === '');
-  (tryAPI ? fetch('/api/events').then(function(r) {
-    if (r.ok) { useAPI = true; return r.json(); }
+  // Try API first
+  fetch('/api/events').then(function(r) {
+    if (r.ok && r.headers.get('content-type') && r.headers.get('content-type').indexOf('json') !== -1) { useAPI = true; return r.json(); }
     throw new Error('no api');
   }).then(function(data) {
     events = data;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(events));
     renderAll();
-  }) : Promise.reject()).catch(function() {
+  }).catch(function() {
     // Fallback: localStorage then static file
     try {
       var stored = localStorage.getItem(STORAGE_KEY);

@@ -78,16 +78,11 @@
       fetch(basePath).then(function(r) { return r.json(); }).then(callback).catch(function() { callback([]); });
     }
 
-    // Only try API on the Node server (port 4000), skip on static servers to avoid 404 noise
-    var port = window.location.port;
-    if (port === '4000' || port === '') {
-      fetch('/api/events').then(function(r) {
-        if (r.ok) return r.json();
-        throw new Error('no api');
-      }).then(callback).catch(fromLocal);
-    } else {
-      fromLocal();
-    }
+    // Try API first, fall back to local data
+    fetch('/api/events').then(function(r) {
+      if (r.ok && r.headers.get('content-type') && r.headers.get('content-type').indexOf('json') !== -1) return r.json();
+      throw new Error('no api');
+    }).then(callback).catch(fromLocal);
   }
 
   // --- LIST VIEW (homepage) ---
