@@ -74,7 +74,7 @@
           if (Array.isArray(parsed) && parsed.length > 0) { callback(parsed); return; }
         }
       } catch(e) {}
-      var basePath = window.location.pathname.includes('/en/') ? '../data/events.json' : 'data/events.json';
+      var basePath = window.location.pathname.includes('/ru/') ? '../data/events.json' : 'data/events.json';
       fetch(basePath).then(function(r) { return r.json(); }).then(callback).catch(function() { callback([]); });
     }
 
