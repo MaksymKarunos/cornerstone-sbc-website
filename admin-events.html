@@ -55,10 +55,32 @@
     .help { padding: 16px 20px; background: #fafafa; border-top: 1px solid #e5e5e5; font-size: 0.85rem; color: #666; }
     .conditional { display: none; }
     .conditional.show { display: block; }
+
+    /* Password Gate */
+    .gate { position: fixed; inset: 0; background: #f5f5f5; z-index: 9999; display: flex; align-items: center; justify-content: center; }
+    .gate-box { background: #fff; border: 1px solid #e5e5e5; padding: 40px; max-width: 360px; width: 100%; text-align: center; }
+    .gate-box h2 { font-size: 1.1rem; margin-bottom: 8px; }
+    .gate-box p { font-size: 0.85rem; color: #999; margin-bottom: 20px; }
+    .gate-box input { text-align: center; font-size: 1.5rem; letter-spacing: 8px; padding: 12px; margin-bottom: 12px; }
+    .gate-box .btn { width: 100%; padding: 12px; }
+    .gate-err { color: #cc0000; font-size: 0.85rem; margin-top: 8px; display: none; }
+    .admin-content { display: none; }
+    .admin-content.unlocked { display: block; }
   </style>
 </head>
 <body>
 
+<div class="gate" id="gate">
+  <div class="gate-box">
+    <h2>Admin Access</h2>
+    <p>Enter PIN to continue</p>
+    <input type="password" id="gate-pin" maxlength="4" placeholder="----" autofocus onkeydown="if(event.key==='Enter')checkPin()">
+    <button class="btn btn-add" onclick="checkPin()">Enter</button>
+    <div class="gate-err" id="gate-err">Incorrect PIN</div>
+  </div>
+</div>
+
+<div class="admin-content" id="admin-content">
 <div class="admin-header">
   <h1>Event Manager</h1>
   <a href="index.html">Back to site</a>
@@ -90,6 +112,13 @@
           <div><label>Description (Russian)</label><input type="text" id="ev-desc-ru" placeholder="Описание события"></div>
           <div><label>Description (English)</label><input type="text" id="ev-desc-en" placeholder="Event description"></div>
         </div>
+        <div style="margin-bottom:12px;">
+          <label>Show On Pages</label>
+          <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:4px;">
+            <label style="font-size:0.9rem;text-transform:none;letter-spacing:0;display:flex;align-items:center;gap:4px;cursor:pointer;"><input type="checkbox" id="ev-d-main" checked> Home Page</label>
+            <label style="font-size:0.9rem;text-transform:none;letter-spacing:0;display:flex;align-items:center;gap:4px;cursor:pointer;"><input type="checkbox" id="ev-d-youth"> Youth Page</label>
+          </div>
+        </div>
         <div class="actions">
           <button class="btn btn-add" onclick="addOneTime()">Add Event</button>
         </div>
@@ -101,7 +130,7 @@
       <h2>One-Time Events</h2>
       <div style="overflow-x: auto;">
         <table class="events-table">
-          <thead><tr><th>Date</th><th>Time</th><th>Title (RU)</th><th>Title (EN)</th><th></th></tr></thead>
+          <thead><tr><th>Date</th><th>Time</th><th>Title (RU)</th><th>Shows On</th><th></th></tr></thead>
           <tbody id="onetime-body"><tr><td colspan="5" class="no-events">Loading...</td></tr></tbody>
         </table>
       </div>
@@ -137,6 +166,13 @@
           <div><label>Description (Russian)</label><input type="text" id="rec-desc-ru" placeholder="Описание"></div>
           <div><label>Description (English)</label><input type="text" id="rec-desc-en" placeholder="Description"></div>
         </div>
+        <div style="margin-bottom:12px;">
+          <label>Show On Pages</label>
+          <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:4px;">
+            <label style="font-size:0.9rem;text-transform:none;letter-spacing:0;display:flex;align-items:center;gap:4px;cursor:pointer;"><input type="checkbox" id="rec-d-main" checked> Home Page</label>
+            <label style="font-size:0.9rem;text-transform:none;letter-spacing:0;display:flex;align-items:center;gap:4px;cursor:pointer;"><input type="checkbox" id="rec-d-youth"> Youth Page</label>
+          </div>
+        </div>
         <div class="actions">
           <button class="btn btn-add" onclick="addRecurring()">Add Recurring Event</button>
         </div>
@@ -148,7 +184,7 @@
       <h2>Recurring Events</h2>
       <div style="overflow-x: auto;">
         <table class="events-table">
-          <thead><tr><th>Day</th><th>Time</th><th>Title (RU)</th><th>Title (EN)</th><th></th></tr></thead>
+          <thead><tr><th>Day</th><th>Time</th><th>Title (RU)</th><th>Shows On</th><th></th></tr></thead>
           <tbody id="recurring-body"><tr><td colspan="5" class="no-events">Loading...</td></tr></tbody>
         </table>
       </div>
@@ -185,9 +221,19 @@
 var STORAGE_KEY = 'cbc_events';
 var DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 var events = [];
+var useAPI = false;
+var adminPin = '';
 
 function saveToStorage() {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(events)); } catch(e) {}
+  // Also save to server API if available
+  if (useAPI && adminPin) {
+    fetch('/api/events', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Admin-Pin': adminPin },
+      body: JSON.stringify(events)
+    }).catch(function() {});
+  }
 }
 
 function switchTab(name) {
@@ -201,26 +247,31 @@ function switchTab(name) {
 }
 
 function loadEvents() {
-  try {
-    var stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      var parsed = JSON.parse(stored);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        events = parsed;
-        renderAll();
-        return;
+  // Try API (only on Node server port)
+  var port = window.location.port;
+  var tryAPI = (port === '4000' || port === '');
+  (tryAPI ? fetch('/api/events').then(function(r) {
+    if (r.ok) { useAPI = true; return r.json(); }
+    throw new Error('no api');
+  }).then(function(data) {
+    events = data;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(events));
+    renderAll();
+  }) : Promise.reject()).catch(function() {
+    // Fallback: localStorage then static file
+    try {
+      var stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        var parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          events = parsed; renderAll(); return;
+        }
       }
-    }
-  } catch(e) {}
-
-  fetch('data/events.json')
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      events = data;
-      saveToStorage();
-      renderAll();
-    })
-    .catch(function() { events = []; renderAll(); });
+    } catch(e) {}
+    fetch('data/events.json').then(function(r) { return r.json(); }).then(function(data) {
+      events = data; localStorage.setItem(STORAGE_KEY, JSON.stringify(events)); renderAll();
+    }).catch(function() { events = []; renderAll(); });
+  });
 }
 
 function renderAll() {
@@ -239,7 +290,8 @@ function renderOneTime() {
     return;
   }
   tbody.innerHTML = oneTime.map(function(ev) {
-    return '<tr><td>' + ev.date + '</td><td>' + ev.time + '</td><td>' + ev.title_ru + '</td><td>' + ev.title_en + '</td>' +
+    var tags = (ev.display || []).map(function(t) { return '<span class="badge">' + t + '</span>'; }).join(' ');
+    return '<tr><td>' + ev.date + '</td><td>' + ev.time + '</td><td>' + ev.title_ru + '<br><small style="color:#999">' + ev.title_en + '</small></td><td>' + tags + '</td>' +
       '<td><button class="btn-del" onclick="deleteEvent(' + ev.id + ')">Remove</button></td></tr>';
   }).join('');
 }
@@ -253,7 +305,8 @@ function renderRecurring() {
     return;
   }
   tbody.innerHTML = recurring.map(function(ev) {
-    return '<tr><td>' + DAYS[ev.recurDay] + '</td><td>' + ev.time + '</td><td>' + ev.title_ru + '</td><td>' + ev.title_en + '</td>' +
+    var tags = (ev.display || []).map(function(t) { return '<span class="badge">' + t + '</span>'; }).join(' ');
+    return '<tr><td>' + DAYS[ev.recurDay] + '</td><td>' + ev.time + '</td><td>' + ev.title_ru + '<br><small style="color:#999">' + ev.title_en + '</small></td><td>' + tags + '</td>' +
       '<td><button class="btn-del" onclick="deleteEvent(' + ev.id + ')">Remove</button></td></tr>';
   }).join('');
 }
@@ -262,8 +315,19 @@ function renderJSON() {
   document.getElementById('json-output').value = JSON.stringify(events, null, 2);
 }
 
+var DISPLAY_TAGS = ['main','youth'];
+
 function getMaxId() {
   return events.reduce(function(m, e) { return Math.max(m, e.id); }, 0);
+}
+
+function getDisplayTags(prefix) {
+  var tags = [];
+  DISPLAY_TAGS.forEach(function(t) {
+    var cb = document.getElementById(prefix + '-d-' + t);
+    if (cb && cb.checked) tags.push(t);
+  });
+  return tags;
 }
 
 function addOneTime() {
@@ -273,12 +337,13 @@ function addOneTime() {
   var ten = document.getElementById('ev-title-en').value.trim();
   var dru = document.getElementById('ev-desc-ru').value.trim();
   var den = document.getElementById('ev-desc-en').value.trim();
+  var display = getDisplayTags('ev');
 
   if (!date || !tru || !ten) {
     showStatus('add-status', 'Fill in date and titles in both languages.', 'err');
     return;
   }
-  events.push({ id: getMaxId() + 1, date: date, time: time || '10:00', title_ru: tru, title_en: ten, desc_ru: dru || tru, desc_en: den || ten });
+  events.push({ id: getMaxId() + 1, date: date, time: time || '10:00', color: '#e53935', display: display, title_ru: tru, title_en: ten, desc_ru: dru || tru, desc_en: den || ten });
   saveToStorage(); renderAll();
   showStatus('add-status', 'Event added.', 'ok');
   document.getElementById('ev-title-ru').value = '';
@@ -294,12 +359,13 @@ function addRecurring() {
   var ten = document.getElementById('rec-title-en').value.trim();
   var dru = document.getElementById('rec-desc-ru').value.trim();
   var den = document.getElementById('rec-desc-en').value.trim();
+  var display = getDisplayTags('rec');
 
   if (!tru || !ten) {
     showStatus('rec-status', 'Fill in titles in both languages.', 'err');
     return;
   }
-  events.push({ id: getMaxId() + 1, recurring: 'weekly', recurDay: day, time: time || '10:00', title_ru: tru, title_en: ten, desc_ru: dru || tru, desc_en: den || ten });
+  events.push({ id: getMaxId() + 1, recurring: 'weekly', recurDay: day, time: time || '10:00', color: '#5c6bc0', display: display, title_ru: tru, title_en: ten, desc_ru: dru || tru, desc_en: den || ten });
   saveToStorage(); renderAll();
   showStatus('rec-status', 'Recurring event added.', 'ok');
   document.getElementById('rec-title-ru').value = '';
@@ -347,8 +413,32 @@ function showStatus(id, msg, type) {
   setTimeout(function() { el.className = 'status'; }, 5000);
 }
 
-loadEvents();
+// Password gate
+function checkPin() {
+  var pin = document.getElementById('gate-pin').value;
+  if (pin === '9502') {
+    adminPin = pin;
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('admin-content').classList.add('unlocked');
+    sessionStorage.setItem('cbc_admin', '1');
+    sessionStorage.setItem('cbc_pin', pin);
+    loadEvents();
+  } else {
+    document.getElementById('gate-err').style.display = 'block';
+    document.getElementById('gate-pin').value = '';
+    setTimeout(function() { document.getElementById('gate-err').style.display = 'none'; }, 2000);
+  }
+}
+
+// Auto-unlock if already authenticated this session
+if (sessionStorage.getItem('cbc_admin') === '1') {
+  adminPin = sessionStorage.getItem('cbc_pin') || '';
+  document.getElementById('gate').style.display = 'none';
+  document.getElementById('admin-content').classList.add('unlocked');
+  loadEvents();
+}
 </script>
 
+</div><!-- /admin-content -->
 </body>
 </html>

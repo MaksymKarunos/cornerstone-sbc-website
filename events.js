@@ -66,15 +66,28 @@
   }
 
   function getEventsData(callback) {
-    try {
-      var stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        var parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) { callback(parsed); return; }
-      }
-    } catch(e) {}
-    var basePath = window.location.pathname.includes('/en/') ? '../data/events.json' : 'data/events.json';
-    fetch(basePath).then(function(r) { return r.json(); }).then(callback).catch(function() { callback([]); });
+    function fromLocal() {
+      try {
+        var stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          var parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) { callback(parsed); return; }
+        }
+      } catch(e) {}
+      var basePath = window.location.pathname.includes('/en/') ? '../data/events.json' : 'data/events.json';
+      fetch(basePath).then(function(r) { return r.json(); }).then(callback).catch(function() { callback([]); });
+    }
+
+    // Only try API on the Node server (port 4000), skip on static servers to avoid 404 noise
+    var port = window.location.port;
+    if (port === '4000' || port === '') {
+      fetch('/api/events').then(function(r) {
+        if (r.ok) return r.json();
+        throw new Error('no api');
+      }).then(callback).catch(fromLocal);
+    } else {
+      fromLocal();
+    }
   }
 
   // --- LIST VIEW (homepage) ---
@@ -107,6 +120,90 @@
       }
     });
   }
+
+  // --- FILTERED EVENT LIST (for specific pages) ---
+  function loadFilteredEvents(containerId, displayTag, limit) {
+    getEventsData(function(events) {
+      var lang = detectLang();
+      var filtered = events.filter(function(e) {
+        return e.display && e.display.indexOf(displayTag) !== -1;
+      });
+      var today = formatISO(new Date());
+      var futureDate = new Date(); futureDate.setDate(futureDate.getDate() + 90);
+      var allEvents = expandForRange(filtered, today, formatISO(futureDate));
+      if (limit) allEvents = allEvents.slice(0, limit);
+      var container = document.getElementById(containerId);
+      if (!container) return;
+      if (allEvents.length === 0) {
+        container.innerHTML = '<p style="color:#999;text-align:center;">' +
+          (lang === 'en' ? 'No upcoming events.' : 'Нет предстоящих событий.') + '</p>';
+      } else {
+        container.innerHTML = allEvents.map(function(ev) { return renderEventItem(ev, lang); }).join('');
+      }
+    });
+  }
+
+  // --- SCHEDULE GRID (recurring services rendered as schedule cards) ---
+  var DAYS_FULL_RU = ['Воскресенье','Понедельник','Вторник','Среда','Четверг','Пятница','Суббота'];
+  var DAYS_FULL_EN = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+  function loadSchedule(containerId) {
+    getEventsData(function(events) {
+      var lang = detectLang();
+      var daysArr = lang === 'en' ? DAYS_FULL_EN : DAYS_FULL_RU;
+      var recurring = events.filter(function(e) {
+        return e.recurring === 'weekly';
+      });
+      // Sort by day of week: Sun=0 first
+      recurring.sort(function(a, b) { return a.recurDay - b.recurDay; });
+      var container = document.getElementById(containerId);
+      if (!container || recurring.length === 0) return;
+      var html = recurring.map(function(ev) {
+        var title = lang === 'en' ? ev.title_en : ev.title_ru;
+        var time12 = to12h(ev.time);
+        return '<div class="schedule-card">' +
+          '<div class="day">' + daysArr[ev.recurDay].toUpperCase() + '</div>' +
+          '<div class="time">' + time12 + '</div>' +
+          '<div class="desc">' + title + '</div></div>';
+      }).join('');
+      container.innerHTML = html;
+    });
+  }
+
+  function to12h(t) {
+    var parts = t.split(':');
+    var h = parseInt(parts[0]); var m = parts[1];
+    var ampm = h >= 12 ? 'PM' : 'AM';
+    if (h === 0) h = 12;
+    else if (h > 12) h -= 12;
+    return h + ':' + m + ' ' + ampm;
+  }
+
+  // --- SCHEDULE LIST (for visit/contact pages - simpler format) ---
+  function loadScheduleList(containerId) {
+    getEventsData(function(events) {
+      var lang = detectLang();
+      var daysArr = lang === 'en' ? DAYS_FULL_EN : DAYS_FULL_RU;
+      var recurring = events.filter(function(e) {
+        return e.recurring === 'weekly';
+      });
+      recurring.sort(function(a, b) { return a.recurDay - b.recurDay; });
+      var container = document.getElementById(containerId);
+      if (!container || recurring.length === 0) return;
+      var html = '<ul style="list-style:none;padding:0;">';
+      recurring.forEach(function(ev) {
+        var title = lang === 'en' ? ev.title_en : ev.title_ru;
+        html += '<li style="padding:8px 0;border-bottom:1px solid #eee;"><strong>' + daysArr[ev.recurDay] + '</strong> — ' + to12h(ev.time) + ' — ' + title + '</li>';
+      });
+      html += '</ul>';
+      container.innerHTML = html;
+    });
+  }
+
+  // Expose all functions
+  window.loadFilteredEvents = loadFilteredEvents;
+  window.loadSchedule = loadSchedule;
+  window.loadScheduleList = loadScheduleList;
 
   // --- CALENDAR VIEW ---
   function renderCalendar(calendarId, listId) {

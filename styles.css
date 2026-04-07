@@ -108,11 +108,11 @@ p { margin-bottom: 1rem; }
 
 /* --- Header / Navigation --- */
 .site-header {
-  background: #fff;
+  background: #111;
   position: sticky;
   top: 0;
   z-index: 1000;
-  box-shadow: 0 1px 0 var(--border);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.05);
 }
 .header-inner {
   display: flex;
@@ -135,22 +135,18 @@ p { margin-bottom: 1rem; }
 }
 .logo:hover { color: var(--accent); }
 .logo-icon {
-  width: 38px;
-  height: 38px;
-  background: var(--primary);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2rem;
-  color: #fff;
+  display: none;
+}
+.logo-img {
+  height: 40px;
+  width: auto;
 }
 
 /* Main Nav */
-.main-nav { display: flex; align-items: center; gap: 0; flex-wrap: nowrap; }
+.main-nav { display: flex; align-items: center; gap: 0; flex-wrap: nowrap; white-space: nowrap; }
 .main-nav a, .dropdown > .nav-link {
-  color: var(--text-light);
-  padding: 8px 10px;
+  color: rgba(255,255,255,0.8);
+  padding: 8px 8px;
   border-radius: var(--radius);
   font-size: 0.82rem;
   white-space: nowrap;
@@ -163,10 +159,10 @@ p { margin-bottom: 1rem; }
   font-family: inherit;
 }
 .main-nav a:hover, .dropdown > .nav-link:hover {
-  color: var(--primary);
-  background: var(--bg-alt);
+  color: #fff;
+  background: rgba(255,255,255,0.1);
 }
-.main-nav a.active { color: var(--primary); font-weight: 600; }
+.main-nav a.active { color: #fff; font-weight: 600; }
 
 /* Dropdowns */
 .dropdown { position: relative; }
@@ -175,7 +171,7 @@ p { margin-bottom: 1rem; }
   position: absolute;
   top: 100%;
   left: 0;
-  background: #fff;
+  background: #222;
   min-width: 220px;
   border-radius: var(--radius);
   box-shadow: var(--shadow-lg);
@@ -186,45 +182,45 @@ p { margin-bottom: 1rem; }
 .dropdown-menu a {
   display: block;
   padding: 10px 18px;
-  color: var(--text);
+  color: rgba(255,255,255,0.8);
   font-size: 0.9rem;
   border-radius: 0;
 }
-.dropdown-menu a:hover { background: var(--bg-alt); color: var(--primary); }
+.dropdown-menu a:hover { background: rgba(255,255,255,0.1); color: #fff; }
 
 .nav-cta {
-  background: var(--primary) !important;
-  color: #fff !important;
+  background: #fff !important;
+  color: #111 !important;
   font-weight: 600 !important;
   margin-left: 8px;
   border-radius: 50px !important;
   padding: 7px 16px !important;
   font-size: 0.8rem !important;
 }
-.nav-cta:hover { background: var(--primary-light) !important; }
+.nav-cta:hover { background: rgba(255,255,255,0.9) !important; }
 
 .lang-switch {
-  color: var(--text-light) !important;
+  color: rgba(255,255,255,0.6) !important;
   font-size: 0.85rem !important;
   opacity: 0.8;
-  border-left: 1px solid var(--border);
+  border-left: 1px solid rgba(255,255,255,0.2);
   margin-left: 8px;
   padding-left: 12px !important;
 }
-.lang-switch:hover { opacity: 1; color: var(--primary) !important; }
+.lang-switch:hover { opacity: 1; color: #fff !important; }
 
 /* Mobile Nav */
 .mobile-toggle {
   display: none;
   background: none;
   border: none;
-  color: var(--primary);
+  color: #fff;
   font-size: 1.5rem;
   cursor: pointer;
   padding: 8px;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 960px) {
   .mobile-toggle { display: block; }
   .main-nav {
     display: none;
@@ -232,27 +228,29 @@ p { margin-bottom: 1rem; }
     top: 72px;
     left: 0;
     right: 0;
-    background: #fff;
+    background: #111;
     flex-direction: column;
     padding: 16px;
-    gap: 4px;
-    border-top: 1px solid var(--border);
-    box-shadow: var(--shadow-lg);
+    gap: 0;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.4);
   }
   .main-nav.open { display: flex; }
-  .main-nav a, .dropdown > .nav-link { width: 100%; padding: 12px 16px; }
+  .main-nav a, .dropdown > .nav-link { width: 100%; padding: 12px 16px; text-align: left; }
+  .dropdown > .nav-link { display: none; }
   .dropdown-menu {
     position: static;
     box-shadow: none;
-    background: var(--bg-alt);
+    background: none;
     border-radius: 0;
-    padding: 0 0 0 20px;
+    padding: 0;
+    display: flex !important;
+    flex-direction: column;
   }
-  .dropdown-menu a { color: var(--text); }
-  .dropdown-menu a:hover { background: var(--bg-alt); color: var(--primary); }
-  .dropdown:hover .dropdown-menu { display: block; }
+  .dropdown-menu a { color: rgba(255,255,255,0.7); padding: 12px 16px; font-size: 0.82rem; font-weight: 500; text-align: left; }
+  .dropdown-menu a:hover { background: rgba(255,255,255,0.1); color: #fff; }
   .nav-cta { margin-left: 0; margin-top: 8px; text-align: center; }
-  .lang-switch { border-left: none; margin-left: 0; padding-left: 16px !important; }
+  .lang-switch { border-left: none; margin-left: 0; padding-left: 16px !important; display: block !important; }
 }
 
 /* --- Hero Section --- */
@@ -728,6 +726,56 @@ p { margin-bottom: 1rem; }
   display: block;
   margin-bottom: 32px;
 }
+
+/* --- Sermon Cards (YouTube-style grid) --- */
+.sermons-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+@media (max-width: 900px) { .sermons-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 520px) { .sermons-grid { grid-template-columns: 1fr; } }
+.sermon-card {
+  display: flex;
+  flex-direction: column;
+}
+.sermon-thumb {
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+  aspect-ratio: 16/9;
+  background: #111;
+}
+.sermon-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.sermon-play {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.35);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.sermon-play::after {
+  content: '';
+  width: 0; height: 0;
+  border-style: solid;
+  border-width: 14px 0 14px 24px;
+  border-color: transparent transparent transparent #fff;
+}
+.sermon-thumb:hover .sermon-play { opacity: 1; }
+.sermon-info { padding: 10px 0; }
+.sermon-title { font-size: 0.95rem; margin-bottom: 4px; line-height: 1.4; }
+.sermon-title a { color: var(--primary); }
+.sermon-title a:hover { color: var(--accent); }
+.sermon-date { font-size: 0.8rem; color: var(--text-light); }
+.sermon-desc { font-size: 0.82rem; color: var(--text-light); line-height: 1.4; margin-top: 2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* Footer logo */
+.site-footer .logo-img { height: 36px; }
 
 /* --- Print --- */
 @media print {

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Славянская Библейская Церковь — Краеугольный Камень — Cornerstone SBC</title>
+  <meta name="description" content="Славянская Библейская Церковь — Краеугольный Камень — Cornerstone Slavic Bible Church. Поклонение, ученичество, миссия.">
+  <meta name="robots" content="index, follow">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="ru_RU">
+  <meta property="og:site_name" content="Славянская Библейская Церковь — Краеугольный Камень">
+  <meta property="og:title" content="Славянская Библейская Церковь — Краеугольный Камень — Cornerstone SBC">
+  <meta property="og:description" content="Славянская Библейская Церковь — Краеугольный Камень — Cornerstone Slavic Bible Church. Поклонение, ученичество, миссия.">
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="logo">
+      <img src="../images/cornerstone_slavic_bible_church_logo.svg" alt="Cornerstone SBC" class="logo-img">
+    </a>
+    <button class="mobile-toggle" onclick="document.querySelector('.main-nav').classList.toggle('open')" aria-label="Меню">☰</button>
+    <nav class="main-nav">
+      <a href="index.html" class="active">Главная</a>
+      <a href="about.html">О нас</a>
+      <a href="ministries.html">Служения</a>
+      <div class="dropdown">
+        <span class="nav-link">Медиа ▾</span>
+        <div class="dropdown-menu">
+          <a href="livestream.html">Прямая трансляция</a>
+          <a href="events.html">События</a>
+        </div>
+      </div>
+      <a href="donate.html">Пожертвования</a>
+      <a href="contact.html">Контакты</a>
+      <a href="visit.html" class="nav-cta">Планируете посетить?</a>
+      <a href="../index.html" class="lang-switch">EN</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ===== HERO ===== -->
+<section class="hero hero-img" style="background-image: url('../images/logo2.jpg')">
+  <div class="container hero-content">
+    <h1>Славянская Библейская Церковь — Краеугольный Камень</h1>
+    <p class="subtitle">Cornerstone Slavic Bible Church</p>
+    <p class="verse">«Итак идите, научите все народы»<br>— Матфея 28:19</p>
+    <div class="hero-buttons">
+      <a href="visit.html" class="btn btn-primary">Планируете посетить?</a>
+      <a href="livestream.html" class="btn btn-outline">Смотреть трансляцию</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SCHEDULE ===== -->
+<section class="section">
+  <div class="container">
+    <h2 class="section-title">Расписание богослужений</h2>
+    <div class="schedule-grid" id="schedule-container"></div>
+  </div>
+</section>
+
+<!-- ===== MINISTRIES OVERVIEW ===== -->
+<section class="section section-alt">
+  <div class="container">
+    <h2 class="section-title">Наши служения</h2>
+    <div class="ministry-grid">
+      <div class="ministry-card">
+        <div class="ministry-icon"></div>
+        <h3>Молодёжное служение (SybYouth)</h3>
+        <p>Среда, 7:00 PM — общение, изучение Библии, духовный рост.</p>
+      </div>
+      <div class="ministry-card">
+        <div class="ministry-icon"></div>
+        <h3>Подростковое служение (Teens)</h3>
+        <p>Вторник, 7:00 PM — служение для подростков.</p>
+      </div>
+      <div class="ministry-card">
+        <div class="ministry-icon"></div>
+        <h3>Детское служение (SBC Kids)</h3>
+        <p>Воскресная школа и программы для детей.</p>
+      </div>
+      <div class="ministry-card">
+        <div class="ministry-icon"></div>
+        <h3>Домашние группы</h3>
+        <p>Малые группы для изучения Писания и общения.</p>
+      </div>
+      <div class="ministry-card">
+        <div class="ministry-icon"></div>
+        <h3>Евангелизация / Миссия</h3>
+        <p>Проповедь Евангелия и миссионерское служение.</p>
+      </div>
+    </div>
+    <div class="text-center mt-4">
+      <a href="ministries.html" class="btn btn-primary">Подробнее о служениях</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== UPCOMING EVENTS ===== -->
+<section class="section">
+  <div class="container">
+    <h2 class="section-title">Ближайшие события</h2>
+    <div id="home-events" class="events-list"></div>
+    <div class="text-center mt-4">
+      <a href="events.html" class="btn btn-primary">Все события</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== DONATE ===== -->
+<section class="section section-dark">
+  <div class="container">
+    <div class="donate-block">
+      <h2 class="section-title">Поддержка служения</h2>
+      <p class="verse">«Каждый уделяй по расположению сердца, не с огорчением и не с принуждением; ибо доброхотно дающего любит Бог.»<br>— 2 Коринфянам 9:7</p>
+      <p>Ваши пожертвования помогают продолжать служение церкви, поддерживать миссионерскую работу и заботиться о нуждающихся.</p>
+      <a href="donate.html" class="btn btn-primary mt-2">Пожертвовать</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CONTACT PREVIEW ===== -->
+<section class="section">
+  <div class="container text-center">
+    <h2 class="section-title">Как нас найти</h2>
+    <p>Адрес: 1413 Broadway, Bellingham, WA 98225</p>
+    <p>Тел: (360) 756-8338 &nbsp;|&nbsp; Email: church@csbchurch.com</p>
+    <div class="mt-3">
+      <a href="contact.html" class="btn btn-primary">Контакты</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-about">
+        <a href="index.html" class="logo">
+          <img src="../images/cornerstone_slavic_bible_church_logo.svg" alt="Cornerstone SBC" class="logo-img">
+        </a>
+        <p>Славянская Библейская Церковь — Краеугольный Камень — Cornerstone Slavic Bible Church. Поклонение, ученичество, миссия.</p>
+        <div class="social-links">
+          <a href="https://www.youtube.com/c/SlavicBaptistChurchBellingham/videos" class="social-link" title="YouTube" target="_blank" rel="noopener">YT</a>
+          <a href="#" class="social-link" title="Facebook">FB</a>
+          <a href="#" class="social-link" title="Instagram">IG</a>
+        </div>
+      </div>
+      <div class="footer-section">
+        <h4>Страницы</h4>
+        <ul>
+          <li><a href="index.html">Главная</a></li>
+          <li><a href="about.html">О церкви</a></li>
+          <li><a href="ministries.html">Служения</a></li>
+          <li></li>
+          <li><a href="events.html">События</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h4>Для посетителей</h4>
+        <ul>
+          <li><a href="visit.html">Планируете посетить?</a></li>
+          <li><a href="faq.html">Частые вопросы</a></li>
+          <li><a href="livestream.html">Трансляция</a></li>
+          <li><a href="donate.html">Пожертвования</a></li>
+          <li><a href="contact.html">Контакты</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h4>Контакты</h4>
+        <ul>
+          <li>Адрес: 1413 Broadway</li>
+          <li>Bellingham, WA 98225</li>
+          <li>Тел: (360) 756-8338</li>
+          <li>Email: church@csbchurch.com</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Славянская Библейская Церковь — Краеугольный Камень. Все права защищены.</p>
+    </div>
+  </div>
+</footer>
+
+<script src="../events.js?v=3"></script><script>loadSchedule('schedule-container'); loadEvents('home-events', 3);</script>
+<script src="../components.js"></script>
+</body>
+</html>
